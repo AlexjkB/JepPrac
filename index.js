@@ -14,6 +14,7 @@ function init(){
         if(event.key === "Enter"){
             event.preventDefault();
             checkAnswer();
+            document.getElementById("input_answer").value = "";
         }
     });
     document.getElementById("total").innerText = total;
