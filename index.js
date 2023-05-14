@@ -9,24 +9,37 @@ var total = 0;
 window.onload = init;
 
 function init(){
-//shortcuts
+    //shortcuts
     document.getElementById("input_answer").addEventListener("keypress", function(event) {
         if(event.key === "Enter"){
             event.preventDefault();
             checkAnswer();
             document.getElementById("input_answer").value = "";
+            document.getElementById("input_answer").type = "hidden";
+            //document.getElementById("input_answer").blur();
         }
     });
-    document.getElementById("total").innerText = total;
+    document.addEventListener("keypress", function(event) {
+        if (event.target.tagName.toLowerCase() === "input") {
+           return;
+        }
+        if(event.key === "j"){
+           getClue(); 
+        }
+        if(event.key === " "){
+            document.getElementById("input_answer").type = "";
+            document.getElementById("input_answer").focus();
+        } 
+    });
 }
 
 function updateClue() {
     document.getElementById("question").innerText = question;
-    document.getElementById("answer").innerText = answer;
+    document.getElementById("answer").innerText = "";
     document.getElementById("year").innerText = year;
     document.getElementById("value").innerText = value;
     document.getElementById("category").innerText = category;
-    console.log("got clue");
+    console.log("updated clue");
 }
 
 async function getClue(){  
@@ -53,7 +66,7 @@ function checkAnswer(){
     } else {
         total -= value;
     }
-    getClue();
+    document.getElementById("answer").innerText = answer; 
     document.getElementById("total").innerText = total;
 }
 
