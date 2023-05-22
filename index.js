@@ -64,9 +64,12 @@ async function getClue(){
     year = post.game_year;
     category = post.clue_category;
     let string_value = post.clue_value;
+    console.log(string_value);
     //daily doubles count for 2000
-    if (string_value == "DD"){
+    if (string_value === "DD"){
         value = 2000;
+    } else if (string_value === "FINAL"){
+        value = 9999;
     } else {
         string_value = string_value.replace('$', '');
         value = parseInt(string_value);

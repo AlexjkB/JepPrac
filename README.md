@@ -12,6 +12,7 @@ progress bar for timer
 check similarity of answer and input
 cascade past answers 
 real css
+escape \ in answers needs to be removed
 
 later todo:
 add get request based off year range
