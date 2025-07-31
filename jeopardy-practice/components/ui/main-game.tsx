@@ -5,82 +5,6 @@ import { CollapsibleCard, MainCard } from "@/components/ui/question-card";
 import { ScrollArea} from "@/components/ui/scroll-area";
 import { useEffect, useState, useRef } from "react";
 
-
-
-const cards = [
-  {
-    year: 3030,
-    value: 2000,
-    category: "History",
-    clue: "This is a historical clue.",
-    answer: "What is the Magna Carta?",
-  },
-  {
-    year: 2010,
-    value: 400,
-    category: "Science",
-    clue: "This clue is all about physics!",
-    answer: "What is the Higgs boson?",
-  },
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-  
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-  {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-    {
-    year: 2020,
-    value: 100,
-    category: "Sports",
-    clue: "This clue is about basketball history.",
-    answer: "What is Michael Jordan?",
-  },
-]
-
 type Question = {
   year: number;
   value: number;
@@ -92,14 +16,17 @@ type Question = {
 export function MainGame() {
 
     const [showAnswer, setShowAnswer] = useState(false);
-    const [currentQuestion, setCurrentQuestion] = useState<Question>({
+    const defaultQuestion: Question ={
         year: 3030,
         value: 0,
         category: "Music",
         clue: "What is the best album of all time?",
         answer: "Loveless"
-    });
+    };
+    const [questions, setQuestions] = useState<Question[]>([defaultQuestion]);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const currentQuestion = questions.at(-1);
+    const pastQuestions = questions.slice(0, -1).reverse();
 
 
     useEffect(() => {
@@ -131,25 +58,16 @@ export function MainGame() {
             throw new Error("Failed to fetch clue");
         }
         const data = await res.json();
-    
+
         const numeric = data.clue_value.replace(/\D/g, "");
-        if (numeric) {
-            setCurrentQuestion({ 
-                year: parseInt(data.game_year, 10),
-                value: parseInt(data.clue_value.replace(/\D/g, ""), 10),
-                category: data.clue_category,
-                clue: data.clue_question,
-                answer: data.clue_answer
-            });
-        } else {
-            setCurrentQuestion({
-                year: parseInt(data.game_year, 10),
-                value: 0,
-                category: data.clue_category,
-                clue: data.clue_question,
-                answer: data.clue_answer
-            });
-        }
+        const newQuestion: Question = {
+            year: parseInt(data.game_year, 10),
+            value: numeric ? parseInt(numeric, 10) : 0,
+            category: data.clue_category,
+            clue: data.clue_question,
+            answer: data.clue_answer
+        };
+        setQuestions(prev => [...prev, newQuestion]);
     }
 
     const checkAnswer = (event: React.FormEvent) => {
@@ -196,14 +114,14 @@ export function MainGame() {
 
                 <ScrollArea className="flex-1 h-0">
                 <div className="flex flex-col gap-4 p-2">
-                    {cards.map((card, index) => (
+                    {pastQuestions.map((question, index) => (
                         <CollapsibleCard
                             key={index}
-                            year={card.year}
-                            value={card.value}
-                            category={card.category}
-                            clue={card.clue}
-                            answer={card.answer}
+                            year={question.year}
+                            value={question.value}
+                            category={question.category}
+                            clue={question.clue}
+                            answer={question.answer}
                         />
                     ))}
                 </div>
