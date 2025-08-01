@@ -45,7 +45,7 @@ export function MainCard({ year, value, category, clue, answer, showAnswer }: Ma
     <Card className="w-full cursor-pointer select-none">
         <CardHeader className="space-y-2">
             <div className="flex items-center justify-between w-full">
-                <CardTitle>{year} / {value} / {category}</CardTitle>
+                <CardTitle>{year} / ${value} / {category}</CardTitle>
                 {showAnswer && <CardTitle>{answer}</CardTitle>}
             </div>
             <CardDescription>
