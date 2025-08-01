@@ -302,7 +302,7 @@ export default function Home() {
         totalWrong={totalWrong}
         totalSkipped={totalSkipped}
       />
-      <SidebarInset>
+      <SidebarInset className="mr-32">
         <MainGame
           questions={questions}
           showAnswer={showAnswer}

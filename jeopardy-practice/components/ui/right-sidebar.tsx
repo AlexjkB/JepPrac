@@ -7,10 +7,10 @@ type RightSidebarProps = {
 }
 
 function cleanTitle(title: string): string {
-  return title
-    .replace(/_/g, " ")
-    .trim()
-    .replace(/^(the|a|an)\s+/i, ""); 
+    return title
+        .replace(/_/g, " ")
+        .trim()
+        .replace(/^(the|a|an)\s+/i, "");
 }
 
 type WikiData = {
@@ -44,30 +44,38 @@ export function RightSidebar({ title }: RightSidebarProps) {
     }, [title]);
 
     return (
-        <Sidebar side="right">
-            <SidebarHeader>
-            </SidebarHeader>
-            <SidebarContent>
-            <SidebarGroup>
-                {wikiData ? (
-                    <div className="space-y-4">
-                    <p className="font-bold">{wikiData.normalizedTitle}</p>
-                    {wikiData.thumbnailUrl && (
-                        <img
-                        src={wikiData.thumbnailUrl}
-                        alt={wikiData.normalizedTitle}
-                        className="w-full rounded"
-                        />
-                    )}
-                    <p className="text-sm">{wikiData.extract}</p>
+        <Sidebar side="right" className="w-96">
+                <SidebarHeader>
+                </SidebarHeader>
+                <SidebarContent>
+                    <SidebarGroup>
+                    <div className="p-4" >
+                        {wikiData ? (
+                            <div className="space-y-4">
+                                <p className="font-bold">{wikiData.normalizedTitle}</p>
+                                {wikiData.thumbnailUrl && (
+                                    <img
+                                        src={wikiData.thumbnailUrl}
+                                        alt={wikiData.normalizedTitle}
+                                        className="w-full rounded"
+                                    />
+                                )}
+                                <div className="space-y-3 text-justify">
+                                    {wikiData.extract.split("\n").map((para, idx) => (
+                                        <p key={idx} className="text-sm leading-relaxed">
+                                            {para}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <p>Loading Wikipedia info...</p>
+                        )}
                     </div>
-                ) : (
-                    <p>Loading Wikipedia info...</p>    
-                )}
-            </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter>
-            </SidebarFooter>
+                    </SidebarGroup>
+                </SidebarContent>
+                <SidebarFooter>
+                </SidebarFooter>
         </Sidebar>
     );
 }
