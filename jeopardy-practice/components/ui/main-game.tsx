@@ -1,6 +1,7 @@
 "use client"; import { Input } from "@/components/ui/input";
 import { CollapsibleCard, MainCard } from "@/components/ui/question-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { State } from "@/types/shared-states";
 
 type Question = {
     year: number;
@@ -10,10 +11,6 @@ type Question = {
     answer: string;
 }
 
-enum State {
-    Question = "question",
-    Answer = "answer"
-}
 
 type MainGameProps = {
     questions: Question[];
@@ -26,7 +23,7 @@ type MainGameProps = {
 
 export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick }: MainGameProps) {
 
-    const currentQuestion = questions.at(-1);
+    const currentQuestion = questions.at(-1)!;
     const pastQuestions = questions.slice(0, -1).reverse();
 
     return (

@@ -4,6 +4,7 @@ import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { useEffect, useState, useRef } from "react";
 import { MainGame } from "@/components/ui/main-game"
+import { State } from "@/types/shared-states";
 
 type Question = {
   year: number;
@@ -13,11 +14,6 @@ type Question = {
   answer: string;
 }
 
-enum State {
-  Question = "question",
-  Answer = "answer",
-  Answered = "answered"
-}
 
 const defaultQuestion: Question = {
   year: 3030,
@@ -215,15 +211,15 @@ export default function Home() {
     event.preventDefault();
     const input = inputRef.current?.value.trim().toLowerCase();
     if (input) {
-      const working_answer = getAllCombinations(processString(questions.at(-1).answer, articles), equivalenceMap);
+      const working_answer = getAllCombinations(processString(questions.at(-1)!.answer, articles), equivalenceMap);
       const working_input = processString(input, articles).join("");
 
       if (maxLevenshtein(working_answer, working_input) > 0.9) {
         setTotalCorrect(prev => prev + 1);
-        setTotalScore(prev => prev + questions.at(-1).value);
+        setTotalScore(prev => prev + questions.at(-1)!.value);
       } else {
         setTotalWrong(prev => prev + 1);
-        setTotalScore(prev => prev - questions.at(-1).value);
+        setTotalScore(prev => prev - questions.at(-1)!.value);
       }
 
       if (inputRef.current) {
@@ -233,7 +229,7 @@ export default function Home() {
       setState(State.Answered);
     }
     inputRef.current?.blur();
-    setTitle(questions.at(-1).answer ? questions.at(-1).answer : "");
+    setTitle(questions.at(-1)!.answer ? questions.at(-1)!.answer : "");
   };
 
   const fetchQuestion = async () => {
@@ -285,7 +281,7 @@ export default function Home() {
 
   useEffect(() => {
     if (showAnswer) {
-      const last = questions.at(-1);
+      const last = questions.at(-1)!;
       setTitle(last ? last.answer : "");
     }
   }, [showAnswer, questions]);
