@@ -309,6 +309,7 @@ export default function Home() {
           inputRef={inputRef}
           checkAnswer={checkAnswer}
           state={state}
+          onPastCardAnswerClick={(q) => setTitle(q.answer)}
         />
       </SidebarInset>
       <RightSidebar

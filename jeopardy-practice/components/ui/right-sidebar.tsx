@@ -1,6 +1,7 @@
 "use client";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader, SidebarFooter, SidebarProvider } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type RightSidebarProps = {
     title: string;
@@ -45,37 +46,53 @@ export function RightSidebar({ title }: RightSidebarProps) {
 
     return (
         <Sidebar side="right" className="w-96">
-                <SidebarHeader>
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarGroup>
+            <SidebarHeader>
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup>
                     <div className="p-4" >
-                        {wikiData ? (
-                            <div className="space-y-4">
-                                <p className="font-bold">{wikiData.normalizedTitle}</p>
-                                {wikiData.thumbnailUrl && (
-                                    <img
-                                        src={wikiData.thumbnailUrl}
-                                        alt={wikiData.normalizedTitle}
-                                        className="w-full rounded"
-                                    />
-                                )}
-                                <div className="space-y-3 text-justify">
-                                    {wikiData.extract.split("\n").map((para, idx) => (
-                                        <p key={idx} className="text-sm leading-relaxed">
-                                            {para}
-                                        </p>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <p>Loading Wikipedia info...</p>
-                        )}
+                        <AnimatePresence mode="wait">
+                            {wikiData ? (
+                                <motion.div
+                                    key={wikiData.normalizedTitle} // ensures re-mount on new data
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="space-y-4"
+                                >
+                                    <p className="font-bold">{wikiData.normalizedTitle}</p>
+                                    {wikiData.thumbnailUrl && (
+                                        <img
+                                            src={wikiData.thumbnailUrl}
+                                            alt={wikiData.normalizedTitle}
+                                            className="w-full rounded"
+                                        />
+                                    )}
+                                    <div className="space-y-3 text-justify">
+                                        {wikiData.extract.split("\n").map((para, idx) => (
+                                            <p key={idx} className="text-sm leading-relaxed">
+                                                {para}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.p
+                                    key="loading"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    Loading Wikipedia info...
+                                </motion.p>
+                            )}
+                        </AnimatePresence>
                     </div>
-                    </SidebarGroup>
-                </SidebarContent>
-                <SidebarFooter>
-                </SidebarFooter>
+                </SidebarGroup>
+            </SidebarContent>
+            <SidebarFooter>
+            </SidebarFooter>
         </Sidebar>
     );
 }
