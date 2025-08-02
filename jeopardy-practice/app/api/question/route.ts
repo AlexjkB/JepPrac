@@ -1,4 +1,4 @@
-export async function GET(req: Request) {
+export async function GET() {
 
     const apiUrl = process.env.RANDOM_API;
     const response = await fetch(`${apiUrl}`);

@@ -1,3 +1,16 @@
+interface WikiPage {
+  pageid: number;
+  ns: number;
+  title: string;
+  extract?: string;
+  thumbnail?: {
+    source: string;
+    width: number;
+    height: number;
+  };
+  [key: string]: unknown;
+}
+
 async function resolveCanonicalTitle(title: string, email: string): Promise<string> {
   const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&redirects=1&titles=${encodeURIComponent(title)}`;
   const res = await fetch(url, {
@@ -10,7 +23,7 @@ async function resolveCanonicalTitle(title: string, email: string): Promise<stri
 
   const data = await res.json();
   const pages = data?.query?.pages || {};
-  const firstPage = Object.values(pages)[0] as any;
+  const firstPage = Object.values(pages)[0] as WikiPage;
   return firstPage?.title || title;
 }
 
