@@ -220,10 +220,10 @@ export default function Home() {
 
       if (maxLevenshtein(working_answer, working_input) > 0.9) {
         setTotalCorrect(prev => prev + 1);
-        setTotalScore(prev => prev + questions.at(-1).value);
+        setTotalScore(prev => prev + questions.at(-1)!.value);
       } else {
         setTotalWrong(prev => prev + 1);
-        setTotalScore(prev => prev - questions.at(-1).value);
+        setTotalScore(prev => prev - questions.at(-1)!.value);
       }
 
       if (inputRef.current) {
@@ -233,7 +233,7 @@ export default function Home() {
       setState(State.Answered);
     }
     inputRef.current?.blur();
-    setTitle(questions.at(-1).answer ? questions.at(-1).answer : "");
+    setTitle(questions.at(-1)!.answer ? questions.at(-1)!.answer : "");
   };
 
   const fetchQuestion = async () => {
@@ -285,7 +285,7 @@ export default function Home() {
 
   useEffect(() => {
     if (showAnswer) {
-      const last = questions.at(-1);
+      const last = questions.at(-1)!;
       setTitle(last ? last.answer : "");
     }
   }, [showAnswer, questions]);
