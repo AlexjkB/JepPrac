@@ -63,8 +63,8 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
                     <div className="flex flex-col gap-4 pr-4">
 
                         {pastQuestions.map((question, index) => (
-
                             <CollapsibleCard
+                                key={`${question.year}-${question.value}-${index}`} // unique key
                                 year={question.year}
                                 value={question.value}
                                 category={question.category}
@@ -72,7 +72,6 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
                                 answer={question.answer}
                                 onAnswerClick={() => onPastCardAnswerClick(question)}
                             />
-
                         ))}
 
                     </div>

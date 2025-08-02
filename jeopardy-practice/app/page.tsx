@@ -27,8 +27,6 @@ const defaultQuestion: Question = {
   answer: "Loveless"
 };
 
-const imageUrl: string = "https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&pithumbsize=400&titles=";
-const summaryUrl: string = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=";
 
 const articles: string[] = ["a", "an", "the"]
 
@@ -239,7 +237,6 @@ export default function Home() {
   };
 
   const fetchQuestion = async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_RANDOM_API;
     const res = await fetch(`api/question`);
     if (!res.ok) {
       throw new Error("Failed to fetch clue");
@@ -278,14 +275,13 @@ export default function Home() {
         setShowAnswer(false);
       }
       if (event.key === "s") {
-        const last = questions[questions.length - 1];
         setState(State.Answer);
         setShowAnswer(true);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state]);
+  }, []);
 
   useEffect(() => {
     if (showAnswer) {

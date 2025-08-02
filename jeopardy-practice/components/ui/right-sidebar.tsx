@@ -1,7 +1,8 @@
 "use client";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader, SidebarFooter, SidebarProvider } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader, SidebarFooter } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from  "next/image";
 
 type RightSidebarProps = {
     title: string;
@@ -63,10 +64,12 @@ export function RightSidebar({ title }: RightSidebarProps) {
                                 >
                                     <p className="font-bold">{wikiData.normalizedTitle}</p>
                                     {wikiData.thumbnailUrl && (
-                                        <img
+                                        <Image
                                             src={wikiData.thumbnailUrl}
                                             alt={wikiData.normalizedTitle}
-                                            className="w-full rounded"
+                                            width={400}       
+                                            height={300}      
+                                            className="w-full rounded object-cover"
                                         />
                                     )}
                                     <div className="space-y-3 text-justify">
