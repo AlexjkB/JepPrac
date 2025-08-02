@@ -4,6 +4,7 @@ import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { useEffect, useState, useRef } from "react";
 import { MainGame } from "@/components/ui/main-game"
+import { State } from "@/types/shared-states";
 
 type Question = {
   year: number;
@@ -13,11 +14,6 @@ type Question = {
   answer: string;
 }
 
-enum State {
-  Question = "question",
-  Answer = "answer",
-  Answered = "answered"
-}
 
 const defaultQuestion: Question = {
   year: 3030,
