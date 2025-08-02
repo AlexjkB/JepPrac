@@ -215,7 +215,7 @@ export default function Home() {
     event.preventDefault();
     const input = inputRef.current?.value.trim().toLowerCase();
     if (input) {
-      const working_answer = getAllCombinations(processString(questions.at(-1).answer, articles), equivalenceMap);
+      const working_answer = getAllCombinations(processString(questions.at(-1)!.answer, articles), equivalenceMap);
       const working_input = processString(input, articles).join("");
 
       if (maxLevenshtein(working_answer, working_input) > 0.9) {
