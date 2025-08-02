@@ -57,7 +57,7 @@ export async function GET(request: Request) {
 
   const data = await res.json();
   const pages = data?.query?.pages || {};
-  const firstPage = Object.values(pages)[0] as any;
+  const firstPage = Object.values(pages)[0] as WikiPage;
 
   return Response.json({
     normalizedTitle: canonicalTitle,
