@@ -23,7 +23,7 @@ type MainGameProps = {
 
 export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick }: MainGameProps) {
 
-    const currentQuestion = questions.at(-1);
+    const currentQuestion = questions.at(-1)!;
     const pastQuestions = questions.slice(0, -1).reverse();
 
     return (
