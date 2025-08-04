@@ -3,7 +3,6 @@ import { CollapsibleCard, MainCard } from "@/components/ui/question-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { State } from "@/types/shared-states";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button"
 
 type Question = {
     year: number;

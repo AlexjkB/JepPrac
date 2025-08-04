@@ -5,7 +5,6 @@ import { RightSidebar } from "@/components/ui/right-sidebar";
 import { useEffect, useState, useRef } from "react";
 import { MainGame } from "@/components/ui/main-game"
 import { State } from "@/types/shared-states";
-import { M_PLUS_1_Code } from "next/font/google";
 
 type Question = {
   year: number;
