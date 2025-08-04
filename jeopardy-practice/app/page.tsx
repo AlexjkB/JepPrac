@@ -201,10 +201,38 @@ export default function Home() {
   const [title, setTitle] = useState<string>("Wikipedia");
   const [totalWrong, setTotalWrong] = useState(0);
   const [totalCorrect, setTotalCorrect] = useState(0);
-  const [totalSkipped, setTotalSkipped] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
+  const totalSeen = questions.length;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const buzzTime = 5;
+  const [secondsLeft, setSecondsLeft] = useState(buzzTime);
+  const progress = ((buzzTime - secondsLeft) / buzzTime) * 100;
+
+
+  useEffect(() => {
+    if (state === State.Answered) return;
+    setSecondsLeft(buzzTime);
+    const interval = setInterval(() => {
+      setSecondsLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+            if (state === State.Question) {
+              setShowAnswer(true);
+              setState(State.Answered);
+            } else if (state === State.Answer) {
+              checkAnswer(new Event("submit") as unknown as React.FormEvent);
+              setState(State.Answered);
+            }
+          return buzzTime;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [state, questions])
 
 
   const checkAnswer = (event: React.FormEvent) => {
@@ -260,19 +288,22 @@ export default function Home() {
       if (event.key === " ") {
         if (state === State.Question) {
           inputRef.current?.focus();
+          setState(State.Answer);
         }
       }
       if (event.key === "j") {
         if (state !== State.Answered) {
-          setTotalSkipped(prev => prev + 1);
+          setState(State.Answered);
         }
         fetchQuestion();
         setState(State.Question);
         setShowAnswer(false);
       }
       if (event.key === "s") {
-        setState(State.Answer);
-        setShowAnswer(true);
+        if (state !== State.Answered) {
+          setState(State.Answered);
+          setShowAnswer(true);
+        }
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -292,7 +323,7 @@ export default function Home() {
         totalScore={totalScore}
         totalCorrect={totalCorrect}
         totalWrong={totalWrong}
-        totalSkipped={totalSkipped}
+        totalSeen={totalSeen}
       />
       <SidebarInset className="mr-32">
         <MainGame
@@ -302,6 +333,7 @@ export default function Home() {
           checkAnswer={checkAnswer}
           state={state}
           onPastCardAnswerClick={(q) => setTitle(q.answer)}
+          progress={progress}
         />
       </SidebarInset>
       <RightSidebar
