@@ -5,7 +5,7 @@ type LeftSidebarProps = {
     totalScore: number;
     totalCorrect: number;
     totalWrong: number;
-    totalSkipped: number;
+    totalSeen: number;
 }
 
 const formatScore = (score: number) => {
@@ -13,7 +13,7 @@ const formatScore = (score: number) => {
   return score < 0 ? `-$${abs}` : `$${abs}`;
 };
 
-export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSkipped }: LeftSidebarProps) {
+export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen }: LeftSidebarProps) {
     return (
         <Sidebar>
             <SidebarHeader>
@@ -33,8 +33,8 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSkipped
                             <Badge className="bg-red-500 text-white">{totalWrong}</Badge>
                         </div>
                         <div className="flex items-center justify-between w-full">
-                            <p>Skipped:</p>
-                            <Badge className="bg-yellow-500 text-white">{totalSkipped}</Badge>
+                            <p>Seen:</p>
+                            <Badge variant="secondary">{totalSeen}</Badge>
                         </div>
                     </SidebarGroup>
                 </div>
