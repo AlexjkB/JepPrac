@@ -209,10 +209,11 @@ export default function Home() {
   const buzzTime = 5;
   const [secondsLeft, setSecondsLeft] = useState(buzzTime);
   const progress = ((buzzTime - secondsLeft) / buzzTime) * 100;
+  const [timerEnabled, setTimerEnabled] = useState(false);
 
 
   useEffect(() => {
-    if (state === State.Answered) return;
+    if (state === State.Answered || !timerEnabled) return;
     setSecondsLeft(buzzTime);
     const interval = setInterval(() => {
       setSecondsLeft(prev => {
@@ -223,6 +224,7 @@ export default function Home() {
               setState(State.Answered);
             } else if (state === State.Answer) {
               checkAnswer(new Event("submit") as unknown as React.FormEvent);
+              setShowAnswer(true);
               setState(State.Answered);
             }
           return buzzTime;
@@ -324,6 +326,8 @@ export default function Home() {
         totalCorrect={totalCorrect}
         totalWrong={totalWrong}
         totalSeen={totalSeen}
+        timerEnabled={timerEnabled}
+        toggleTimer={() => setTimerEnabled(prev => !prev)}
       />
       <SidebarInset className="mr-32">
         <MainGame

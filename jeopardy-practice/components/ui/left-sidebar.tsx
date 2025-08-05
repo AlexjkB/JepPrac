@@ -1,19 +1,23 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader, SidebarFooter } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 type LeftSidebarProps = {
     totalScore: number;
     totalCorrect: number;
     totalWrong: number;
     totalSeen: number;
+    timerEnabled: boolean;
+    toggleTimer: () => void;
 }
 
 const formatScore = (score: number) => {
-  const abs = Math.abs(score).toLocaleString("en-US");
-  return score < 0 ? `-$${abs}` : `$${abs}`;
+    const abs = Math.abs(score).toLocaleString("en-US");
+    return score < 0 ? `-$${abs}` : `$${abs}`;
 };
 
-export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen }: LeftSidebarProps) {
+export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer }: LeftSidebarProps) {
     return (
         <Sidebar>
             <SidebarHeader>
@@ -40,6 +44,19 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen }:
                 </div>
             </SidebarHeader>
             <SidebarContent>
+                <div className="p-4">
+                    <SidebarGroup className="space-y-1">
+                        <Badge className="mb-2 text-lg">Settings</Badge>
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="timer-toggle">Timer</Label>
+                            <Switch
+                                id="timer-toggle"
+                                checked={timerEnabled}
+                                onCheckedChange={toggleTimer}
+                            />
+                        </div>
+                    </SidebarGroup>
+                </div>
             </SidebarContent>
             <SidebarFooter>
 
