@@ -21,9 +21,10 @@ type MainGameProps = {
     state: State;
     onPastCardAnswerClick: (question: Question) => void;
     progress: number;
+    setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick, progress }: MainGameProps) {
+export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick, progress, setShowAnswer }: MainGameProps) {
 
     const currentQuestion = questions.at(-1)!;
     const pastQuestions = questions.slice(0, -1).reverse();
@@ -53,6 +54,7 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
                                 const form = e.currentTarget.form;
                                 if (form) form.requestSubmit();
                                 e.currentTarget.blur();
+                                setShowAnswer(true);
                             }
 
                         }}

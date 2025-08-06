@@ -10,7 +10,9 @@ type RightSidebarProps = {
 
 function cleanTitle(title: string): string {
     return title
-        .replace(/_/g, " ")
+        .replace(/_/g, " ") 
+        .replace(/['"`]/g, "")
+        .replace(/[()]/g, "")
         .trim()
         .replace(/^(the|a|an)\s+/i, "");
 }
@@ -55,14 +57,14 @@ export function RightSidebar({ title }: RightSidebarProps) {
                         <AnimatePresence mode="wait">
                             {wikiData ? (
                                 <motion.div
-                                    key={wikiData.normalizedTitle} // ensures re-mount on new data
+                                    key={title} 
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.3 }}
                                     className="space-y-4"
                                 >
-                                    <p className="font-bold">{wikiData.normalizedTitle}</p>
+                                    <p className="font-bold">{title}</p>
                                     {wikiData.thumbnailUrl && (
                                         <Image
                                             src={wikiData.thumbnailUrl}

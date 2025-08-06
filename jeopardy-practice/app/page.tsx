@@ -338,6 +338,7 @@ export default function Home() {
           state={state}
           onPastCardAnswerClick={(q) => setTitle(q.answer)}
           progress={progress}
+          setShowAnswer={setShowAnswer}
         />
       </SidebarInset>
       <RightSidebar
