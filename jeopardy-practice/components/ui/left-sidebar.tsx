@@ -37,8 +37,8 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
                             <Badge className="bg-red-500 text-white">{totalWrong}</Badge>
                         </div>
                         <div className="flex items-center justify-between w-full">
-                            <p>Seen:</p>
-                            <Badge variant="secondary">{totalSeen}</Badge>
+                            <p>Skipped:</p>
+                            <Badge variant="secondary">{totalSeen-totalWrong-totalCorrect}</Badge>
                         </div>
                     </SidebarGroup>
                 </div>
