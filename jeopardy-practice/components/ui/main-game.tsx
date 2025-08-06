@@ -3,6 +3,7 @@ import { CollapsibleCard, MainCard } from "@/components/ui/question-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { State } from "@/types/shared-states";
 import { Progress } from "@/components/ui/progress";
+import { SeenState } from "@/types/shared-states"
 
 type Question = {
     year: number;
@@ -10,6 +11,7 @@ type Question = {
     category: string;
     clue: string;
     answer: string;
+    seenState: SeenState;
 }
 
 
@@ -24,7 +26,7 @@ type MainGameProps = {
     setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick, progress, setShowAnswer }: MainGameProps) {
+export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick, progress, setShowAnswer}: MainGameProps) {
 
     const currentQuestion = questions.at(-1)!;
     const pastQuestions = questions.slice(0, -1).reverse();
@@ -33,14 +35,15 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
     return (
         <div className="flex h-screen w-full px-8 py-8">
             <div className="flex flex-col flex-1 mx-auto gap-4 overflow-hidden">
-                <MainCard
+                { questions.length > 0 && <MainCard
                     year={currentQuestion.year}
                     value={currentQuestion.value}
                     category={currentQuestion.category}
                     clue={currentQuestion.clue}
                     answer={currentQuestion.answer}
                     showAnswer={showAnswer}
-                />
+                    seenState={currentQuestion.seenState}
+                />}
                 <form onSubmit={checkAnswer} className="flex gap-2">
                     <Input
                         className="flex-1"
@@ -85,6 +88,7 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
                                 clue={question.clue}
                                 answer={question.answer}
                                 onAnswerClick={() => onPastCardAnswerClick(question)}
+                                seenState={question.seenState}
                             />
                         ))}
 

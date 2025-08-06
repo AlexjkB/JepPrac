@@ -3,7 +3,9 @@
 import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"
+import { SeenState } from "@/types/shared-states"
+import { Badge } from "@/components/ui/badge"
 
 type Question = {
   year: number;
@@ -11,13 +13,14 @@ type Question = {
   category: string;
   clue: string;
   answer: string;
+  seenState: SeenState;
 }
 
 type CollapsibleCardProps = Question & {
   onAnswerClick: () => void;
 }
 
-export function CollapsibleCard({ year, value, category, clue, answer, onAnswerClick }: CollapsibleCardProps) {
+export function CollapsibleCard({ year, value, category, clue, answer, onAnswerClick, seenState }: CollapsibleCardProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -36,7 +39,17 @@ export function CollapsibleCard({ year, value, category, clue, answer, onAnswerC
                     onAnswerClick?.();
                   }}
                 >
-                  {answer}
+                  <div className='flex gap-4'>
+                    {answer}
+                    <Badge className={`h-4 min-w-4 rounded-full
+                    ${seenState === SeenState.Correct
+                    ? "bg-green-500"
+                    : seenState === SeenState.Wrong
+                    ? "bg-red-500"
+                    : ""
+                    }`}>
+                    </Badge>
+                  </div>
                 </button>
               </CardTitle>
             </div>

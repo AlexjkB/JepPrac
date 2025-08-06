@@ -4,7 +4,7 @@ import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { useEffect, useState, useRef } from "react";
 import { MainGame } from "@/components/ui/main-game"
-import { State } from "@/types/shared-states";
+import { State, SeenState } from "@/types/shared-states";
 
 type Question = {
   year: number;
@@ -12,16 +12,8 @@ type Question = {
   category: string;
   clue: string;
   answer: string;
+  seenState: SeenState
 }
-
-
-const defaultQuestion: Question = {
-  year: 3030,
-  value: 0,
-  category: "Music",
-  clue: "What is the best album of all time?",
-  answer: "Loveless"
-};
 
 
 const articles: string[] = ["a", "an", "the"]
@@ -197,7 +189,7 @@ export default function Home() {
 
   const [showAnswer, setShowAnswer] = useState(false);
   const [state, setState] = useState(State.Question);
-  const [questions, setQuestions] = useState<Question[]>([defaultQuestion]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState<string>("Wikipedia");
   const [totalWrong, setTotalWrong] = useState(0);
   const [totalCorrect, setTotalCorrect] = useState(0);
@@ -211,6 +203,19 @@ export default function Home() {
   const progress = ((buzzTime - secondsLeft) / buzzTime) * 100;
   const [timerEnabled, setTimerEnabled] = useState(false);
 
+  const updateSeenState = (index: number, newSeenState: SeenState) => {
+    setQuestions(prevQuestions => {
+      const updated = [...prevQuestions];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          seenState: newSeenState,
+        };
+      }
+      return updated;
+    });
+  };
+
 
   useEffect(() => {
     if (state === State.Answered || !timerEnabled) return;
@@ -219,14 +224,15 @@ export default function Home() {
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(interval);
-            if (state === State.Question) {
-              setShowAnswer(true);
-              setState(State.Answered);
-            } else if (state === State.Answer) {
-              checkAnswer(new Event("submit") as unknown as React.FormEvent);
-              setShowAnswer(true);
-              setState(State.Answered);
-            }
+          if (state === State.Question) {
+            setShowAnswer(true);
+            updateSeenState(questions.length - 1, SeenState.Skipped);
+            setState(State.Answered);
+          } else if (state === State.Answer) {
+            checkAnswer(new Event("submit") as unknown as React.FormEvent);
+            setShowAnswer(true);
+            setState(State.Answered);
+          }
           return buzzTime;
         }
         return prev - 1;
@@ -235,6 +241,10 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [state, questions])
+
+  useEffect(() => {
+    fetchQuestion();
+  }, [])
 
 
   const checkAnswer = (event: React.FormEvent) => {
@@ -247,9 +257,12 @@ export default function Home() {
       if (maxLevenshtein(working_answer, working_input) > 0.9) {
         setTotalCorrect(prev => prev + 1);
         setTotalScore(prev => prev + questions.at(-1)!.value);
+        updateSeenState(questions.length - 1, SeenState.Correct);
+
       } else {
         setTotalWrong(prev => prev + 1);
         setTotalScore(prev => prev - questions.at(-1)!.value);
+        updateSeenState(questions.length - 1, SeenState.Wrong);
       }
 
       if (inputRef.current) {
@@ -275,7 +288,8 @@ export default function Home() {
       value: numeric ? parseInt(numeric, 10) : 0,
       category: data.clue_category,
       clue: data.clue_question,
-      answer: data.clue_answer
+      answer: data.clue_answer,
+      seenState: SeenState.Current
     };
     setQuestions(prev => [...prev, newQuestion]);
   }
@@ -304,6 +318,7 @@ export default function Home() {
       if (event.key === "s") {
         if (state !== State.Answered) {
           setState(State.Answered);
+          updateSeenState(questions.length - 1, SeenState.Skipped);
           setShowAnswer(true);
         }
       }
