@@ -2,7 +2,7 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef} from "react";
 import { MainGame } from "@/components/ui/main-game"
 import { State, SeenState } from "@/types/shared-states";
 
@@ -229,7 +229,7 @@ export default function Home() {
             updateSeenState(questions.length - 1, SeenState.Skipped);
             setState(State.Answered);
           } else if (state === State.Answer) {
-            checkAnswer(new Event("submit") as unknown as React.FormEvent);
+            checkAnswer();
             setShowAnswer(true);
             setState(State.Answered);
           }
@@ -247,8 +247,8 @@ export default function Home() {
   }, [])
 
 
-  const checkAnswer = (event: React.FormEvent) => {
-    event.preventDefault();
+  const checkAnswer = (event?: React.FormEvent) => {
+    if (event) event.preventDefault();
     const input = inputRef.current?.value.trim().toLowerCase();
     if (input) {
       const working_answer = getAllCombinations(processString(questions.at(-1)!.answer, articles), equivalenceMap);
