@@ -10,8 +10,6 @@ type LeftSidebarProps = {
 	totalSeen: number;
 	timerEnabled: boolean;
 	toggleTimer: () => void;
-	darkModeEnabled: boolean;
-	toggleDarkMode: () => void;
 }
 
 const formatScore = (score: number) => {
@@ -19,7 +17,7 @@ const formatScore = (score: number) => {
 	return score < 0 ? `-$${abs}` : `$${abs}`;
 };
 
-export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer, darkModeEnabled, toggleDarkMode }: LeftSidebarProps) {
+export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer }: LeftSidebarProps) {
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -61,8 +59,13 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 							<Label htmlFor="dark-mode-toggle">Dark Mode</Label>
 							<Switch
 								id="dark-mode-toggle"
-								checked={darkModeEnabled}
-								onCheckedChange={toggleDarkMode}
+								defaultChecked={true}
+								onCheckedChange={() => {
+									const body = document.body;
+									body.classList.contains('dark')
+										? body.classList.remove('dark')
+										: body.classList.add('dark');
+								}}
 							/>
 						</div>
 					</SidebarGroup>

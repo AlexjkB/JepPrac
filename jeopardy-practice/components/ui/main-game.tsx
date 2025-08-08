@@ -67,7 +67,7 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
 					/>
 					<button
 						type="submit"
-						className=" rounded-md px-4 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+						className="rounded-md px-4 bg-yellow-500 text-white rounded hover:bg-yellow-600 cursor-pointer"
 						disabled={state != State.Answer}
 					>
 						Submit

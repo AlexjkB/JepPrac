@@ -2,7 +2,7 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { MainGame } from "@/components/ui/main-game"
 import { State, SeenState } from "@/types/shared-states";
 
@@ -202,7 +202,6 @@ export default function Home() {
   const [secondsLeft, setSecondsLeft] = useState(buzzTime);
   const progress = ((buzzTime - secondsLeft) / buzzTime) * 100;
   const [timerEnabled, setTimerEnabled] = useState(false);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
 
   const updateSeenState = (index: number, newSeenState: SeenState) => {
     setQuestions(prevQuestions => {
@@ -230,7 +229,7 @@ export default function Home() {
             updateSeenState(questions.length - 1, SeenState.Skipped);
             setState(State.Answered);
           } else if (state === State.Answer) {
-            checkAnswer(new Event("submit") as unknown as React.FormEvent);
+            checkAnswer();
             setShowAnswer(true);
             setState(State.Answered);
           }
@@ -248,8 +247,8 @@ export default function Home() {
   }, [])
 
 
-  const checkAnswer = (event: React.FormEvent) => {
-    event.preventDefault();
+  const checkAnswer = (event?: React.FormEvent) => {
+    if (event) event.preventDefault();
     const input = inputRef.current?.value.trim().toLowerCase();
     if (input) {
       const working_answer = getAllCombinations(processString(questions.at(-1)!.answer, articles), equivalenceMap);
@@ -336,34 +335,30 @@ export default function Home() {
   }, [showAnswer, questions]);
 
   return (
-    <div className={darkModeEnabled === true ? "dark" : ""}>
-      <SidebarProvider>
-        <LeftSidebar
-          totalScore={totalScore}
-          totalCorrect={totalCorrect}
-          totalWrong={totalWrong}
-          totalSeen={totalSeen}
-          timerEnabled={timerEnabled}
-          toggleTimer={() => setTimerEnabled(prev => !prev)}
-          darkModeEnabled={darkModeEnabled}
-          toggleDarkMode={() => setDarkModeEnabled(prev => !prev)}
+    <SidebarProvider>
+      <LeftSidebar
+        totalScore={totalScore}
+        totalCorrect={totalCorrect}
+        totalWrong={totalWrong}
+        totalSeen={totalSeen}
+        timerEnabled={timerEnabled}
+        toggleTimer={() => setTimerEnabled(prev => !prev)}
+      />
+      <SidebarInset className="mr-32">
+        <MainGame
+          questions={questions}
+          showAnswer={showAnswer}
+          inputRef={inputRef}
+          checkAnswer={checkAnswer}
+          state={state}
+          onPastCardAnswerClick={(q) => setTitle(q.answer)}
+          progress={progress}
+          setShowAnswer={setShowAnswer}
         />
-        <SidebarInset className="mr-32">
-          <MainGame
-            questions={questions}
-            showAnswer={showAnswer}
-            inputRef={inputRef}
-            checkAnswer={checkAnswer}
-            state={state}
-            onPastCardAnswerClick={(q) => setTitle(q.answer)}
-            progress={progress}
-            setShowAnswer={setShowAnswer}
-          />
-        </SidebarInset>
-        <RightSidebar
-          title={title}
-        />
-      </SidebarProvider>
-    </div>
+      </SidebarInset>
+      <RightSidebar
+        title={title}
+      />
+    </SidebarProvider>
   );
 }
