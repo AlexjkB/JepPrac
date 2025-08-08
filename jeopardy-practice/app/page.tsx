@@ -2,7 +2,7 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef} from "react";
 import { MainGame } from "@/components/ui/main-game"
 import { State, SeenState } from "@/types/shared-states";
 
