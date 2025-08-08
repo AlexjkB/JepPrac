@@ -61,10 +61,7 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 								id="dark-mode-toggle"
 								defaultChecked={true}
 								onCheckedChange={() => {
-									const body = document.body;
-									body.classList.contains('dark')
-										? body.classList.remove('dark')
-										: body.classList.add('dark');
+									document.body.classList.toggle('dark');
 								}}
 							/>
 						</div>
