@@ -43,11 +43,11 @@ export function CollapsibleCard({ year, value, category, clue, answer, onAnswerC
                     {answer}
                     <Badge className={`h-4 min-w-4 rounded-full
                     ${seenState === SeenState.Correct
-                    ? "bg-green-500"
-                    : seenState === SeenState.Wrong
-                    ? "bg-red-500"
-                    : ""
-                    }`}>
+                        ? "bg-green-500"
+                        : seenState === SeenState.Wrong
+                          ? "bg-red-500"
+                          : ""
+                      }`}>
                     </Badge>
                   </div>
                 </button>

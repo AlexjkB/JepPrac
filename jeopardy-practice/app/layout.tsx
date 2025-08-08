@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Jeopardy Practice",
-  description: "Practice Jeopardy questions and answers",
+  description: "Practice trivia question",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en"> 
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

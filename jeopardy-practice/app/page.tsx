@@ -202,6 +202,7 @@ export default function Home() {
   const [secondsLeft, setSecondsLeft] = useState(buzzTime);
   const progress = ((buzzTime - secondsLeft) / buzzTime) * 100;
   const [timerEnabled, setTimerEnabled] = useState(false);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
 
   const updateSeenState = (index: number, newSeenState: SeenState) => {
     setQuestions(prevQuestions => {
@@ -335,30 +336,34 @@ export default function Home() {
   }, [showAnswer, questions]);
 
   return (
-    <SidebarProvider>
-      <LeftSidebar
-        totalScore={totalScore}
-        totalCorrect={totalCorrect}
-        totalWrong={totalWrong}
-        totalSeen={totalSeen}
-        timerEnabled={timerEnabled}
-        toggleTimer={() => setTimerEnabled(prev => !prev)}
-      />
-      <SidebarInset className="mr-32">
-        <MainGame
-          questions={questions}
-          showAnswer={showAnswer}
-          inputRef={inputRef}
-          checkAnswer={checkAnswer}
-          state={state}
-          onPastCardAnswerClick={(q) => setTitle(q.answer)}
-          progress={progress}
-          setShowAnswer={setShowAnswer}
+    <div className={darkModeEnabled === true ? "dark" : ""}>
+      <SidebarProvider>
+        <LeftSidebar
+          totalScore={totalScore}
+          totalCorrect={totalCorrect}
+          totalWrong={totalWrong}
+          totalSeen={totalSeen}
+          timerEnabled={timerEnabled}
+          toggleTimer={() => setTimerEnabled(prev => !prev)}
+          darkModeEnabled={darkModeEnabled}
+          toggleDarkMode={() => setDarkModeEnabled(prev => !prev)}
         />
-      </SidebarInset>
-      <RightSidebar
-        title={title}
-      />
-    </SidebarProvider>
+        <SidebarInset className="mr-32">
+          <MainGame
+            questions={questions}
+            showAnswer={showAnswer}
+            inputRef={inputRef}
+            checkAnswer={checkAnswer}
+            state={state}
+            onPastCardAnswerClick={(q) => setTitle(q.answer)}
+            progress={progress}
+            setShowAnswer={setShowAnswer}
+          />
+        </SidebarInset>
+        <RightSidebar
+          title={title}
+        />
+      </SidebarProvider>
+    </div>
   );
 }
