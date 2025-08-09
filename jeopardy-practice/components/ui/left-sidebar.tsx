@@ -60,24 +60,26 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 								onCheckedChange={toggleTimer}
 							/>
 						</div>
-						{timerEnabled === true &&
-							<motion.div
-								initial={{ opacity: 0, y: -10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: 10 }}
-								transition={{ duration: 0.3 }}
-								className="flex space-x-4">
-								<p>2</p>
-								<Slider
-									value={[timerValue]}
-									max={8}
-									min={2}
-									step={1}
-									onValueChange={(vals) => {changeTimerValue(vals[0])}}
-								/>
-								<p>8</p>
-							</motion.div>
-						}
+						<AnimatePresence mode="wait">
+							{timerEnabled === true &&
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: 10 }}
+									transition={{ duration: 0.3 }}
+									className="flex space-x-4">
+									<p>2</p>
+									<Slider
+										value={[timerValue]}
+										max={8}
+										min={2}
+										step={1}
+										onValueChange={(vals) => { changeTimerValue(vals[0]) }}
+									/>
+									<p>8</p>
+								</motion.div>
+							}
+						</AnimatePresence>
 						<div className="flex items-center justify-between">
 							<Label htmlFor="dark-mode-toggle">Dark Mode</Label>
 							<Switch
