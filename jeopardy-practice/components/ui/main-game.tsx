@@ -24,9 +24,10 @@ type MainGameProps = {
 	onPastCardAnswerClick: (question: Question) => void;
 	progress: number;
 	setShowAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+	setState: React.Dispatch<React.SetStateAction<State>>;
 }
 
-export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick, progress, setShowAnswer }: MainGameProps) {
+export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, onPastCardAnswerClick, progress, setShowAnswer, setState }: MainGameProps) {
 
 	const currentQuestion = questions.at(-1)!;
 	const pastQuestions = questions.slice(0, -1).reverse();
@@ -60,6 +61,9 @@ export function MainGame({ questions, showAnswer, inputRef, checkAnswer, state, 
 								setShowAnswer(true);
 							}
 
+						}}
+						onFocus={() => {
+							setState(State.Answer);
 						}}
 						ref={inputRef}
 						type="text"
