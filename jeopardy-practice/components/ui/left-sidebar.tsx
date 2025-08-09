@@ -52,6 +52,7 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 							<Switch
 								id="timer-toggle"
 								checked={timerEnabled}
+								aria-label='timer-toggle'
 								onCheckedChange={toggleTimer}
 							/>
 						</div>
@@ -59,6 +60,7 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 							<Label htmlFor="dark-mode-toggle">Dark Mode</Label>
 							<Switch
 								id="dark-mode-toggle"
+								aria-label='dark-mode-toggle'
 								defaultChecked={true}
 								onCheckedChange={() => {
 									document.body.classList.toggle('dark');
