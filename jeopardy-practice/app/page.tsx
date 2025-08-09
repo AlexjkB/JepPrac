@@ -199,10 +199,10 @@ export default function Home() {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const buzzTime = 5;
-  const [secondsLeft, setSecondsLeft] = useState(buzzTime);
-  const progress = ((buzzTime - secondsLeft) / buzzTime) * 100;
   const [timerEnabled, setTimerEnabled] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(5);
+  const [secondsLeft, setSecondsLeft] = useState(timerSeconds);
+  const progress = ((timerSeconds - secondsLeft) / timerSeconds) * 100;
 
   const updateSeenState = (index: number, newSeenState: SeenState) => {
     setQuestions(prevQuestions => {
@@ -220,7 +220,7 @@ export default function Home() {
 
   useEffect(() => {
     if (state === State.Answered || !timerEnabled) return;
-    setSecondsLeft(buzzTime);
+    setSecondsLeft(timerSeconds);
     const interval = setInterval(() => {
       setSecondsLeft(prev => {
         if (prev <= 1) {
@@ -234,7 +234,7 @@ export default function Home() {
             setShowAnswer(true);
             setState(State.Answered);
           }
-          return buzzTime;
+          return timerSeconds;
         }
         return prev - 1;
       });
@@ -344,6 +344,8 @@ export default function Home() {
         totalSeen={totalSeen}
         timerEnabled={timerEnabled}
         toggleTimer={() => setTimerEnabled(prev => !prev)}
+        timerValue={timerSeconds}
+        changeTimerValue={setTimerSeconds}
       />
       <SidebarInset className="mr-32">
         <MainGame

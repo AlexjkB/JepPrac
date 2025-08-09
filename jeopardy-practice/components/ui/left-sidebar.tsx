@@ -2,6 +2,8 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarHeader, SidebarFooter } f
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { motion, AnimatePresence } from "framer-motion";
 
 type LeftSidebarProps = {
 	totalScore: number;
@@ -10,6 +12,8 @@ type LeftSidebarProps = {
 	totalSeen: number;
 	timerEnabled: boolean;
 	toggleTimer: () => void;
+	timerValue: number;
+	changeTimerValue: (val: number) => void;
 }
 
 const formatScore = (score: number) => {
@@ -17,7 +21,7 @@ const formatScore = (score: number) => {
 	return score < 0 ? `-$${abs}` : `$${abs}`;
 };
 
-export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer }: LeftSidebarProps) {
+export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer, timerValue, changeTimerValue }: LeftSidebarProps) {
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -45,10 +49,10 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 			</SidebarHeader>
 			<SidebarContent>
 				<div className="p-4">
-					<SidebarGroup className="space-y-1">
+					<SidebarGroup className="space-y-4">
 						<Badge className="mb-2 text-lg">Settings</Badge>
 						<div className="flex items-center justify-between">
-							<Label htmlFor="timer-toggle">Timer</Label>
+							<Label htmlFor="timer-toggle">Timer (sec)</Label>
 							<Switch
 								id="timer-toggle"
 								checked={timerEnabled}
@@ -56,6 +60,26 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 								onCheckedChange={toggleTimer}
 							/>
 						</div>
+						<AnimatePresence mode="wait">
+							{timerEnabled === true &&
+								<motion.div
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: 10 }}
+									transition={{ duration: 0.3 }}
+									className="flex space-x-4">
+									<p>2</p>
+									<Slider
+										value={[timerValue]}
+										max={8}
+										min={2}
+										step={1}
+										onValueChange={(vals) => { changeTimerValue(vals[0]) }}
+									/>
+									<p>8</p>
+								</motion.div>
+							}
+						</AnimatePresence>
 						<div className="flex items-center justify-between">
 							<Label htmlFor="dark-mode-toggle">Dark Mode</Label>
 							<Switch
