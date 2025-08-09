@@ -65,6 +65,7 @@ const equivalenceList: string[][] = [
   ["samuel", "samantha", "sam"],
   ["log", "logarithm"],
   ["constant", "number"],
+  ["and","&"],
 ];
 
 const equivalenceMap: Record<string, string[]> = {};
@@ -354,6 +355,7 @@ export default function Home() {
           onPastCardAnswerClick={(q) => setTitle(q.answer)}
           progress={progress}
           setShowAnswer={setShowAnswer}
+          setState={setState}
         />
       </SidebarInset>
       <RightSidebar
