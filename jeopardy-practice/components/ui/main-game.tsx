@@ -1,18 +1,8 @@
 "use client"; import { Input } from "@/components/ui/input";
 import { CollapsibleCard, MainCard } from "@/components/ui/question-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { State } from "@/types/shared-states";
+import { State, Question } from "@/types/shared-states";
 import { Progress } from "@/components/ui/progress";
-import { SeenState } from "@/types/shared-states"
-
-type Question = {
-	year: number;
-	value: number;
-	category: string;
-	clue: string;
-	answer: string;
-	seenState: SeenState;
-}
 
 
 type MainGameProps = {

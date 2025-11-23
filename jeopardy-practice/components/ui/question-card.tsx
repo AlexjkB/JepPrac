@@ -4,17 +4,8 @@ import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { motion, AnimatePresence } from "framer-motion"
-import { SeenState } from "@/types/shared-states"
+import { SeenState, Question } from "@/types/shared-states"
 import { Badge } from "@/components/ui/badge"
-
-type Question = {
-  year: number;
-  value: number;
-  category: string;
-  clue: string;
-  answer: string;
-  seenState: SeenState;
-}
 
 type CollapsibleCardProps = Question & {
   onAnswerClick: () => void;
