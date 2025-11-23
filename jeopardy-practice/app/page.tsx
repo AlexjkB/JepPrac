@@ -4,16 +4,9 @@ import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { useEffect, useState, useRef} from "react";
 import { MainGame } from "@/components/ui/main-game"
-import { State, SeenState } from "@/types/shared-states";
-
-type Question = {
-  year: number;
-  value: number;
-  category: string;
-  clue: string;
-  answer: string;
-  seenState: SeenState
-}
+import { State, SeenState, Question, GameMode, PracticeSession, UserProfile } from "@/types/shared-states";
+import { loadProfile, saveProfile, initializeProfile, updateCategoryStats, resetProfile } from "@/lib/storage";
+import { PracticeSessionTracker } from "@/components/ui/practice-session-tracker";
 
 
 const articles: string[] = ["a", "an", "the"]
@@ -185,6 +178,49 @@ function maxLevenshtein(answerOptions: string[], guess: string): number {
   return maxLevenshteinRatio;
 }
 
+// Helper function to infer AI class from category name
+function inferAIClass(categoryName: string | undefined): string {
+  if (!categoryName) return 'general';
+  const category = categoryName.toUpperCase();
+
+  // History
+  if (category.includes('HISTORY') || category.includes('HISTORICAL')) return 'history';
+
+  // Science
+  if (category.includes('SCIENCE') || category.includes('BIOLOGY') || category.includes('CHEMISTRY') ||
+      category.includes('PHYSICS') || category.includes('ASTRONOMY') || category.includes('NATURE')) return 'science';
+
+  // Literature
+  if (category.includes('LITERATURE') || category.includes('BOOKS') || category.includes('AUTHORS') ||
+      category.includes('POETRY') || category.includes('NOVELS')) return 'literature';
+
+  // Geography
+  if (category.includes('GEOGRAPHY') || category.includes('COUNTRIES') || category.includes('CITIES') ||
+      category.includes('CAPITALS') || category.includes('WORLD')) return 'geography';
+
+  // Sports
+  if (category.includes('SPORTS') || category.includes('ATHLETES') || category.includes('OLYMPICS')) return 'sports';
+
+  // Music
+  if (category.includes('MUSIC') || category.includes('SONGS') || category.includes('COMPOSERS')) return 'music';
+
+  // Movies & TV
+  if (category.includes('MOVIES') || category.includes('FILM') || category.includes('TV') ||
+      category.includes('TELEVISION') || category.includes('ACTORS')) return 'movies';
+
+  // Art
+  if (category.includes('ART') || category.includes('ARTISTS') || category.includes('PAINTING')) return 'art';
+
+  // Politics
+  if (category.includes('POLITICS') || category.includes('PRESIDENTS') || category.includes('GOVERNMENT')) return 'politics';
+
+  // Religion
+  if (category.includes('RELIGION') || category.includes('BIBLE') || category.includes('CHURCH')) return 'religion';
+
+  // Default: return general for unclassified categories
+  return 'general';
+}
+
 
 export default function Home() {
 
@@ -192,17 +228,90 @@ export default function Home() {
   const [state, setState] = useState(State.Question);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState<string>("Wikipedia");
-  const [totalWrong, setTotalWrong] = useState(0);
-  const [totalCorrect, setTotalCorrect] = useState(0);
-  const [totalScore, setTotalScore] = useState(0);
+
+  const [userProfile, setUserProfile] = useState<UserProfile>(initializeProfile());
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
+
+  const totalWrong = userProfile.totalWrong;
+  const totalCorrect = userProfile.totalCorrect;
+  const totalScore = userProfile.totalScore;
   const totalSeen = questions.length;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleResetProfile = () => {
+    const fresh = resetProfile();
+    setUserProfile(fresh);
+    setQuestions([]);
+    fetchQuestion();
+  };
+
+  const handleSkipQuestion = () => {
+    const currentQuestion = questions.at(-1);
+    if (currentQuestion) {
+      updateSeenState(questions.length - 1, SeenState.Skipped);
+      const updatedProfile = updateCategoryStats(userProfile, currentQuestion, SeenState.Skipped);
+      setUserProfile(updatedProfile);
+      saveProfile(updatedProfile);
+
+      if (practiceSession) {
+        const newAnswered = practiceSession.questionsAnswered + 1;
+        const newRemaining = practiceSession.questionsRemaining - 1;
+
+        setPracticeSession({
+          ...practiceSession,
+          questionsAnswered: newAnswered,
+          questionsRemaining: newRemaining
+        });
+
+        if (newRemaining === 0) {
+          setTimeout(() => {
+            handleExitPractice();
+          }, 2000);
+        }
+      }
+    }
+  };
 
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(5);
   const [secondsLeft, setSecondsLeft] = useState(timerSeconds);
   const progress = ((timerSeconds - secondsLeft) / timerSeconds) * 100;
+
+  const [gameMode, setGameMode] = useState<GameMode>(GameMode.Random);
+  const [practiceSession, setPracticeSession] = useState<PracticeSession | null>(null);
+  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+
+  const handleStartPractice = (categories: string[], sessionSize: number = 10) => {
+    const newSession: PracticeSession = {
+      targetCategories: categories,
+      questionsRemaining: sessionSize,
+      totalQuestions: sessionSize,
+      startTime: new Date().toISOString(),
+      questionsAnswered: 0,
+      lastCategory: undefined
+    };
+    setPracticeSession(newSession);
+    setGameMode(GameMode.Practice);
+    setQuestions([]);
+    setState(State.Question);
+    setShowAnswer(false);
+  };
+
+  const handleExitPractice = () => {
+    setPracticeSession(null);
+    setGameMode(GameMode.Random);
+  };
+
+  const handleExtendSession = (additionalQuestions: number) => {
+    if (practiceSession) {
+      setPracticeSession({
+        ...practiceSession,
+        questionsRemaining: practiceSession.questionsRemaining + additionalQuestions,
+        totalQuestions: practiceSession.totalQuestions + additionalQuestions
+      });
+    }
+  };
 
   const updateSeenState = (index: number, newSeenState: SeenState) => {
     setQuestions(prevQuestions => {
@@ -227,7 +336,7 @@ export default function Home() {
           clearInterval(interval);
           if (state === State.Question) {
             setShowAnswer(true);
-            updateSeenState(questions.length - 1, SeenState.Skipped);
+            handleSkipQuestion();
             setState(State.Answered);
           } else if (state === State.Answer) {
             checkAnswer();
@@ -244,8 +353,24 @@ export default function Home() {
   }, [state, questions])
 
   useEffect(() => {
-    fetchQuestion();
-  }, [])
+    const savedProfile = loadProfile();
+    if (savedProfile) {
+      setUserProfile(savedProfile);
+    }
+    setIsProfileLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isProfileLoaded && questions.length === 0) {
+      fetchQuestion();
+    }
+  }, [isProfileLoaded])
+
+  useEffect(() => {
+    if (practiceSession && questions.length === 0) {
+      fetchQuestion();
+    }
+  }, [practiceSession])
 
 
   const checkAnswer = (event?: React.FormEvent) => {
@@ -255,15 +380,32 @@ export default function Home() {
       const working_answer = getAllCombinations(processString(questions.at(-1)!.answer, articles), equivalenceMap);
       const working_input = processString(input, articles).join("");
 
-      if (maxLevenshtein(working_answer, working_input) > 0.9) {
-        setTotalCorrect(prev => prev + 1);
-        setTotalScore(prev => prev + questions.at(-1)!.value);
-        updateSeenState(questions.length - 1, SeenState.Correct);
+      const result = maxLevenshtein(working_answer, working_input) > 0.9
+        ? SeenState.Correct
+        : SeenState.Wrong;
 
-      } else {
-        setTotalWrong(prev => prev + 1);
-        setTotalScore(prev => prev - questions.at(-1)!.value);
-        updateSeenState(questions.length - 1, SeenState.Wrong);
+      updateSeenState(questions.length - 1, result);
+
+      const currentQuestion = questions.at(-1)!;
+      const updatedProfile = updateCategoryStats(userProfile, currentQuestion, result);
+      setUserProfile(updatedProfile);
+      saveProfile(updatedProfile);
+
+      if (practiceSession) {
+        const newAnswered = practiceSession.questionsAnswered + 1;
+        const newRemaining = practiceSession.questionsRemaining - 1;
+
+        setPracticeSession({
+          ...practiceSession,
+          questionsAnswered: newAnswered,
+          questionsRemaining: newRemaining
+        });
+
+        if (newRemaining === 0) {
+          setTimeout(() => {
+            handleExitPractice();
+          }, 2000);
+        }
       }
 
       if (inputRef.current) {
@@ -277,22 +419,71 @@ export default function Home() {
   };
 
   const fetchQuestion = async () => {
-    const res = await fetch(`api/question`);
+    let url = 'api/question';
+
+    console.log('=== FETCH QUESTION DEBUG ===');
+    console.log('Game Mode:', gameMode);
+    console.log('Practice Session:', practiceSession);
+    console.log('Selected Classes:', selectedClasses);
+    console.log('Selected Classes Length:', selectedClasses.length);
+
+    if (gameMode === GameMode.Practice && practiceSession) {
+      const categoriesParam = practiceSession.targetCategories.join(',');
+      const lastCategory = practiceSession.lastCategory || '';
+      url = `api/practice?categories=${encodeURIComponent(categoriesParam)}&lastCategory=${encodeURIComponent(lastCategory)}`;
+      console.log('Using PRACTICE mode URL:', url);
+    } else if (selectedClasses.length > 0) {
+      // When classes are filtered (and not in practice mode), use classified endpoint
+      const randomClass = selectedClasses[Math.floor(Math.random() * selectedClasses.length)];
+      url = `api/question?class=${encodeURIComponent(randomClass)}`;
+      console.log('Using FILTERED mode with class:', randomClass);
+      console.log('Constructed URL:', url);
+    } else {
+      console.log('Using RANDOM mode (no filters)');
+    }
+    console.log('Final URL being fetched:', url);
+    console.log('===========================');
+
+    const res = await fetch(url);
     if (!res.ok) {
       throw new Error("Failed to fetch clue");
     }
     const data = await res.json();
 
-    const numeric = data.clue_value.replace(/\D/g, "");
+    // Debug: Log full API response
+    console.log('=== FULL API RESPONSE ===');
+    console.log('URL:', url);
+    console.log('Data:', JSON.stringify(data, null, 2));
+    console.log('Available fields:', Object.keys(data));
+    console.log('========================');
+
+    const numeric = data.clue_value ? data.clue_value.replace(/\D/g, "") : "0";
+    // Extract AI class from various possible field names
+    let aiClass = data.ai_class || data.class || data.ai_tag || data.aiClass;
+
+    // If no AI class provided, infer from category name
+    if (!aiClass) {
+      aiClass = inferAIClass(data.category_name);
+      console.log('Inferred AI class:', aiClass, 'from category:', data.category_name);
+    }
+
     const newQuestion: Question = {
-      year: parseInt(data.game_year, 10),
+      year: data.game_year ? parseInt(data.game_year, 10) : 0,
       value: numeric ? parseInt(numeric, 10) : 0,
-      category: data.clue_category,
-      clue: data.clue_question,
-      answer: data.clue_answer,
+      category: data.category_name || 'Unknown',
+      aiClass: aiClass,
+      clue: data.clue_question || '',
+      answer: data.clue_answer || '',
       seenState: SeenState.Current
     };
     setQuestions(prev => [...prev, newQuestion]);
+
+    if (practiceSession) {
+      setPracticeSession({
+        ...practiceSession,
+        lastCategory: data.category_name
+      });
+    }
   }
 
   useEffect(() => {
@@ -319,14 +510,14 @@ export default function Home() {
       if (event.key === "s") {
         if (state !== State.Answered) {
           setState(State.Answered);
-          updateSeenState(questions.length - 1, SeenState.Skipped);
+          handleSkipQuestion();
           setShowAnswer(true);
         }
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state]);
+  }, [state, selectedClasses, gameMode, practiceSession]);
 
   useEffect(() => {
     if (showAnswer) {
@@ -346,8 +537,22 @@ export default function Home() {
         toggleTimer={() => setTimerEnabled(prev => !prev)}
         timerValue={timerSeconds}
         changeTimerValue={setTimerSeconds}
+        userProfile={userProfile}
+        onResetProfile={handleResetProfile}
+        onStartPractice={handleStartPractice}
+        selectedClasses={selectedClasses}
+        onClassesChange={setSelectedClasses}
       />
       <SidebarInset className="mr-32">
+        {practiceSession && (
+          <div className="p-4">
+            <PracticeSessionTracker
+              session={practiceSession}
+              onExit={handleExitPractice}
+              onExtend={handleExtendSession}
+            />
+          </div>
+        )}
         <MainGame
           questions={questions}
           showAnswer={showAnswer}
