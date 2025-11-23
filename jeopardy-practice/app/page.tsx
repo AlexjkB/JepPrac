@@ -179,7 +179,8 @@ function maxLevenshtein(answerOptions: string[], guess: string): number {
 }
 
 // Helper function to infer AI class from category name
-function inferAIClass(categoryName: string): string {
+function inferAIClass(categoryName: string | undefined): string {
+  if (!categoryName) return 'general';
   const category = categoryName.toUpperCase();
 
   // History
@@ -205,7 +206,7 @@ function inferAIClass(categoryName: string): string {
 
   // Movies & TV
   if (category.includes('MOVIES') || category.includes('FILM') || category.includes('TV') ||
-      category.includes('TELEVISION') || category.includes('ACTORS')) return 'entertainment';
+      category.includes('TELEVISION') || category.includes('ACTORS')) return 'movies';
 
   // Art
   if (category.includes('ART') || category.includes('ARTISTS') || category.includes('PAINTING')) return 'art';
@@ -216,15 +217,7 @@ function inferAIClass(categoryName: string): string {
   // Religion
   if (category.includes('RELIGION') || category.includes('BIBLE') || category.includes('CHURCH')) return 'religion';
 
-  // Food & Drink
-  if (category.includes('FOOD') || category.includes('COOKING') || category.includes('WINE') ||
-      category.includes('POTABLES')) return 'food';
-
-  // Language & Words
-  if (category.includes('WORD') || category.includes('LANGUAGE') || category.includes('RHYME') ||
-      category.includes('BEFORE & AFTER')) return 'wordplay';
-
-  // Default: use 'general' or return cleaned category name
+  // Default: return general for unclassified categories
   return 'general';
 }
 
@@ -287,6 +280,7 @@ export default function Home() {
 
   const [gameMode, setGameMode] = useState<GameMode>(GameMode.Random);
   const [practiceSession, setPracticeSession] = useState<PracticeSession | null>(null);
+  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
 
   const handleStartPractice = (categories: string[], sessionSize: number = 10) => {
     const newSession: PracticeSession = {
@@ -427,11 +421,28 @@ export default function Home() {
   const fetchQuestion = async () => {
     let url = 'api/question';
 
+    console.log('=== FETCH QUESTION DEBUG ===');
+    console.log('Game Mode:', gameMode);
+    console.log('Practice Session:', practiceSession);
+    console.log('Selected Classes:', selectedClasses);
+    console.log('Selected Classes Length:', selectedClasses.length);
+
     if (gameMode === GameMode.Practice && practiceSession) {
       const categoriesParam = practiceSession.targetCategories.join(',');
       const lastCategory = practiceSession.lastCategory || '';
       url = `api/practice?categories=${encodeURIComponent(categoriesParam)}&lastCategory=${encodeURIComponent(lastCategory)}`;
+      console.log('Using PRACTICE mode URL:', url);
+    } else if (selectedClasses.length > 0) {
+      // When classes are filtered (and not in practice mode), use classified endpoint
+      const randomClass = selectedClasses[Math.floor(Math.random() * selectedClasses.length)];
+      url = `api/question?class=${encodeURIComponent(randomClass)}`;
+      console.log('Using FILTERED mode with class:', randomClass);
+      console.log('Constructed URL:', url);
+    } else {
+      console.log('Using RANDOM mode (no filters)');
     }
+    console.log('Final URL being fetched:', url);
+    console.log('===========================');
 
     const res = await fetch(url);
     if (!res.ok) {
@@ -439,17 +450,14 @@ export default function Home() {
     }
     const data = await res.json();
 
-    // Debug: Log API response to see available fields
-    console.log('API Response fields:', Object.keys(data));
-    console.log('Category:', data.category_name);
-    console.log('AI Class fields:', {
-      ai_class: data.ai_class,
-      class: data.class,
-      ai_tag: data.ai_tag,
-      aiClass: data.aiClass
-    });
+    // Debug: Log full API response
+    console.log('=== FULL API RESPONSE ===');
+    console.log('URL:', url);
+    console.log('Data:', JSON.stringify(data, null, 2));
+    console.log('Available fields:', Object.keys(data));
+    console.log('========================');
 
-    const numeric = data.clue_value.replace(/\D/g, "");
+    const numeric = data.clue_value ? data.clue_value.replace(/\D/g, "") : "0";
     // Extract AI class from various possible field names
     let aiClass = data.ai_class || data.class || data.ai_tag || data.aiClass;
 
@@ -460,12 +468,12 @@ export default function Home() {
     }
 
     const newQuestion: Question = {
-      year: parseInt(data.game_year, 10),
+      year: data.game_year ? parseInt(data.game_year, 10) : 0,
       value: numeric ? parseInt(numeric, 10) : 0,
-      category: data.category_name,
+      category: data.category_name || 'Unknown',
       aiClass: aiClass,
-      clue: data.clue_question,
-      answer: data.clue_answer,
+      clue: data.clue_question || '',
+      answer: data.clue_answer || '',
       seenState: SeenState.Current
     };
     setQuestions(prev => [...prev, newQuestion]);
@@ -509,7 +517,7 @@ export default function Home() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state]);
+  }, [state, selectedClasses, gameMode, practiceSession]);
 
   useEffect(() => {
     if (showAnswer) {
@@ -532,6 +540,8 @@ export default function Home() {
         userProfile={userProfile}
         onResetProfile={handleResetProfile}
         onStartPractice={handleStartPractice}
+        selectedClasses={selectedClasses}
+        onClassesChange={setSelectedClasses}
       />
       <SidebarInset className="mr-32">
         {practiceSession && (
