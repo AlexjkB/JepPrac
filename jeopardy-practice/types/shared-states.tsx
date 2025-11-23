@@ -11,10 +11,16 @@ export enum SeenState {
   Wrong = "wrong"
 }
 
+export enum GameMode {
+  Random = "random",
+  Practice = "practice"
+}
+
 export type Question = {
   year: number;
   value: number;
   category: string;
+  aiClass?: string;
   clue: string;
   answer: string;
   seenState: SeenState;
@@ -38,4 +44,13 @@ export type UserProfile = {
   totalScore: number;
   questionsHistory: Question[];
   lastUpdated: string;
+};
+
+export type PracticeSession = {
+  targetCategories: string[];
+  questionsRemaining: number;
+  totalQuestions: number;
+  startTime: string;
+  questionsAnswered: number;
+  lastCategory?: string;
 };

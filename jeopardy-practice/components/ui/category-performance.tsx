@@ -9,9 +9,10 @@ import { CategoryStatsModal } from "./category-stats-modal";
 type CategoryPerformanceProps = {
   profile: UserProfile;
   onReset?: () => void;
+  onStartPractice?: (categories: string[], sessionSize: number) => void;
 };
 
-export function CategoryPerformance({ profile, onReset }: CategoryPerformanceProps) {
+export function CategoryPerformance({ profile, onReset, onStartPractice }: CategoryPerformanceProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const weakPoints = getWeakPoints(profile, 3);
   const hasData = Object.keys(profile.categoryStats).length > 0;
@@ -34,14 +35,38 @@ export function CategoryPerformance({ profile, onReset }: CategoryPerformancePro
 
         {weakPoints.length > 0 ? (
           <>
-            <p className="text-sm text-muted-foreground">Weak Points:</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">Weak Points:</p>
+              {onStartPractice && weakPoints.length > 1 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onStartPractice(weakPoints.map(w => w.category), 15)}
+                  className="text-xs h-7"
+                >
+                  Practice All
+                </Button>
+              )}
+            </div>
             <div className="space-y-2">
               {weakPoints.map((stat) => (
-                <div key={stat.category} className="flex justify-between items-center">
+                <div key={stat.category} className="flex justify-between items-center gap-2">
                   <span className="text-sm truncate flex-1">{stat.category}</span>
-                  <Badge variant={getPerformanceBadgeVariant(stat.accuracy)} className="ml-2">
-                    {(stat.accuracy * 100).toFixed(0)}%
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getPerformanceBadgeVariant(stat.accuracy)}>
+                      {(stat.accuracy * 100).toFixed(0)}%
+                    </Badge>
+                    {onStartPractice && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => onStartPractice([stat.category], 10)}
+                        className="text-xs h-7 px-2"
+                      >
+                        Practice
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

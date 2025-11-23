@@ -57,9 +57,10 @@ export function updateCategoryStats(
   question: Question,
   result: SeenState
 ): UserProfile {
-  const categoryName = question.category;
-  const currentStats = profile.categoryStats[categoryName] || {
-    category: categoryName,
+  // Use AI class if available, otherwise fall back to category name
+  const categoryKey = question.aiClass || question.category;
+  const currentStats = profile.categoryStats[categoryKey] || {
+    category: categoryKey,
     correct: 0,
     wrong: 0,
     skipped: 0,
@@ -109,7 +110,7 @@ export function updateCategoryStats(
     ...profile,
     categoryStats: {
       ...profile.categoryStats,
-      [categoryName]: updatedStats,
+      [categoryKey]: updatedStats,
     },
     totalCorrect,
     totalWrong,
