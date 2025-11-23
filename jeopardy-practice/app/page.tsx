@@ -4,16 +4,8 @@ import { LeftSidebar } from "@/components/ui/left-sidebar";
 import { RightSidebar } from "@/components/ui/right-sidebar";
 import { useEffect, useState, useRef} from "react";
 import { MainGame } from "@/components/ui/main-game"
-import { State, SeenState } from "@/types/shared-states";
-
-type Question = {
-  year: number;
-  value: number;
-  category: string;
-  clue: string;
-  answer: string;
-  seenState: SeenState
-}
+import { State, SeenState, Question } from "@/types/shared-states";
+import { loadProfile, saveProfile, initializeProfile, updateCategoryStats, resetProfile } from "@/lib/storage";
 
 
 const articles: string[] = ["a", "an", "the"]
@@ -192,12 +184,32 @@ export default function Home() {
   const [state, setState] = useState(State.Question);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState<string>("Wikipedia");
-  const [totalWrong, setTotalWrong] = useState(0);
-  const [totalCorrect, setTotalCorrect] = useState(0);
-  const [totalScore, setTotalScore] = useState(0);
+
+  const [userProfile, setUserProfile] = useState(() => loadProfile() ?? initializeProfile());
+
+  const totalWrong = userProfile.totalWrong;
+  const totalCorrect = userProfile.totalCorrect;
+  const totalScore = userProfile.totalScore;
   const totalSeen = questions.length;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleResetProfile = () => {
+    const fresh = resetProfile();
+    setUserProfile(fresh);
+    setQuestions([]);
+    fetchQuestion();
+  };
+
+  const handleSkipQuestion = () => {
+    const currentQuestion = questions.at(-1);
+    if (currentQuestion) {
+      updateSeenState(questions.length - 1, SeenState.Skipped);
+      const updatedProfile = updateCategoryStats(userProfile, currentQuestion, SeenState.Skipped);
+      setUserProfile(updatedProfile);
+      saveProfile(updatedProfile);
+    }
+  };
 
   const [timerEnabled, setTimerEnabled] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(5);
@@ -227,7 +239,7 @@ export default function Home() {
           clearInterval(interval);
           if (state === State.Question) {
             setShowAnswer(true);
-            updateSeenState(questions.length - 1, SeenState.Skipped);
+            handleSkipQuestion();
             setState(State.Answered);
           } else if (state === State.Answer) {
             checkAnswer();
@@ -255,16 +267,16 @@ export default function Home() {
       const working_answer = getAllCombinations(processString(questions.at(-1)!.answer, articles), equivalenceMap);
       const working_input = processString(input, articles).join("");
 
-      if (maxLevenshtein(working_answer, working_input) > 0.9) {
-        setTotalCorrect(prev => prev + 1);
-        setTotalScore(prev => prev + questions.at(-1)!.value);
-        updateSeenState(questions.length - 1, SeenState.Correct);
+      const result = maxLevenshtein(working_answer, working_input) > 0.9
+        ? SeenState.Correct
+        : SeenState.Wrong;
 
-      } else {
-        setTotalWrong(prev => prev + 1);
-        setTotalScore(prev => prev - questions.at(-1)!.value);
-        updateSeenState(questions.length - 1, SeenState.Wrong);
-      }
+      updateSeenState(questions.length - 1, result);
+
+      const currentQuestion = questions.at(-1)!;
+      const updatedProfile = updateCategoryStats(userProfile, currentQuestion, result);
+      setUserProfile(updatedProfile);
+      saveProfile(updatedProfile);
 
       if (inputRef.current) {
         inputRef.current.value = ""
@@ -319,7 +331,7 @@ export default function Home() {
       if (event.key === "s") {
         if (state !== State.Answered) {
           setState(State.Answered);
-          updateSeenState(questions.length - 1, SeenState.Skipped);
+          handleSkipQuestion();
           setShowAnswer(true);
         }
       }
@@ -346,6 +358,8 @@ export default function Home() {
         toggleTimer={() => setTimerEnabled(prev => !prev)}
         timerValue={timerSeconds}
         changeTimerValue={setTimerSeconds}
+        userProfile={userProfile}
+        onResetProfile={handleResetProfile}
       />
       <SidebarInset className="mr-32">
         <MainGame

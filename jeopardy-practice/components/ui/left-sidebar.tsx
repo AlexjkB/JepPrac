@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "framer-motion";
+import { CategoryPerformance } from "@/components/ui/category-performance";
+import { UserProfile } from "@/types/shared-states";
 
 type LeftSidebarProps = {
 	totalScore: number;
@@ -14,6 +16,8 @@ type LeftSidebarProps = {
 	toggleTimer: () => void;
 	timerValue: number;
 	changeTimerValue: (val: number) => void;
+	userProfile: UserProfile;
+	onResetProfile: () => void;
 }
 
 const formatScore = (score: number) => {
@@ -21,7 +25,7 @@ const formatScore = (score: number) => {
 	return score < 0 ? `-$${abs}` : `$${abs}`;
 };
 
-export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer, timerValue, changeTimerValue }: LeftSidebarProps) {
+export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, timerEnabled, toggleTimer, timerValue, changeTimerValue, userProfile, onResetProfile }: LeftSidebarProps) {
 	return (
 		<Sidebar>
 			<SidebarHeader>
@@ -48,7 +52,8 @@ export function LeftSidebar({ totalScore, totalCorrect, totalWrong, totalSeen, t
 				</div>
 			</SidebarHeader>
 			<SidebarContent>
-				<div className="p-4">
+				<div className="p-4 space-y-6">
+					<CategoryPerformance profile={userProfile} onReset={onResetProfile} />
 					<SidebarGroup className="space-y-4">
 						<Badge className="mb-2 text-lg">Settings</Badge>
 						<div className="flex items-center justify-between">
