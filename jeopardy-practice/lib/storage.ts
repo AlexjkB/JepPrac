@@ -1,4 +1,4 @@
-import { UserProfile, Question, CategoryStats, SeenState } from "@/types/shared-states";
+import { UserProfile, Question, SeenState } from "@/types/shared-states";
 
 const PROFILE_KEY = "jeopardy_user_profile";
 const MAX_HISTORY = 200;
