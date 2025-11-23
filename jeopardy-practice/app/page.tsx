@@ -287,7 +287,7 @@ export default function Home() {
     const newQuestion: Question = {
       year: parseInt(data.game_year, 10),
       value: numeric ? parseInt(numeric, 10) : 0,
-      category: data.clue_category,
+      category: data.category_name,
       clue: data.clue_question,
       answer: data.clue_answer,
       seenState: SeenState.Current
