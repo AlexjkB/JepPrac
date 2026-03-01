@@ -280,7 +280,7 @@ export default function Home() {
 
   const [gameMode, setGameMode] = useState<GameMode>(GameMode.Random);
   const [practiceSession, setPracticeSession] = useState<PracticeSession | null>(null);
-  const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+
 
   const handleStartPractice = (categories: string[], sessionSize: number = 10) => {
     const newSession: PracticeSession = {
@@ -424,22 +424,11 @@ export default function Home() {
     console.log('=== FETCH QUESTION DEBUG ===');
     console.log('Game Mode:', gameMode);
     console.log('Practice Session:', practiceSession);
-    console.log('Selected Classes:', selectedClasses);
-    console.log('Selected Classes Length:', selectedClasses.length);
-
     if (gameMode === GameMode.Practice && practiceSession) {
       const categoriesParam = practiceSession.targetCategories.join(',');
       const lastCategory = practiceSession.lastCategory || '';
       url = `api/practice?categories=${encodeURIComponent(categoriesParam)}&lastCategory=${encodeURIComponent(lastCategory)}`;
       console.log('Using PRACTICE mode URL:', url);
-    } else if (selectedClasses.length > 0) {
-      // When classes are filtered (and not in practice mode), use classified endpoint
-      const randomClass = selectedClasses[Math.floor(Math.random() * selectedClasses.length)];
-      url = `api/question?class=${encodeURIComponent(randomClass)}`;
-      console.log('Using FILTERED mode with class:', randomClass);
-      console.log('Constructed URL:', url);
-    } else {
-      console.log('Using RANDOM mode (no filters)');
     }
     console.log('Final URL being fetched:', url);
     console.log('===========================');
@@ -517,7 +506,7 @@ export default function Home() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state, selectedClasses, gameMode, practiceSession]);
+  }, [state, gameMode, practiceSession]);
 
   useEffect(() => {
     if (showAnswer) {
@@ -540,8 +529,6 @@ export default function Home() {
         userProfile={userProfile}
         onResetProfile={handleResetProfile}
         onStartPractice={handleStartPractice}
-        selectedClasses={selectedClasses}
-        onClassesChange={setSelectedClasses}
       />
       <SidebarInset className="mr-32">
         {practiceSession && (
